@@ -5,8 +5,9 @@ from pymongo import MongoClient
 
 conn = MongoClient("mongodb://localhost:27017")
 
+
 package = {
-    "p_name":"Kerala Winter trip",
+    "name":"Kerala Winter trip",
     "destination":["Munnar","Wagamon","Thekkady"],
     "description":"Experience the beauty and flavours of God's Own Country",
     "amount":5000,

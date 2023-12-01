@@ -4,22 +4,39 @@ from typing import List,Optional
 
 
 class Packages(BaseModel):
-    p_name:str
+    name:str
     description:str
     destination:List[str]
     amount:float
-    rating:Optional[List[float]]=None
     availability:int
     start_date:datetime.datetime
     end_date:datetime.datetime
 
 class PackageFilter(BaseModel):
-    p_name: Optional[str]=None
+    _id:Optional[str] = None
+    name: Optional[str]=None
     description: Optional[str]=None
     destination: Optional[List[str]]=None
     amount: Optional[float]=None
-    rating: Optional[List[float]] = None
     availability: Optional[int]=None
     start_date: Optional[datetime.datetime]=None
     end_date: Optional[datetime.datetime]=None
+    class Config:
+        json_schema_extra={"example":
+                               {
+                                   "_id":"",
+                                   "name":"",
+                                   "description":"",
+                                   "destination":[],
+                                   "amount":"",
+                                   "availability":"",
+                                   "start_date":"",
+                                   "end_date":""
+                               }
+        }
 
+
+
+class RatedPackage(Packages):
+    rating:float=0
+    total_rating:list[float]=[]
