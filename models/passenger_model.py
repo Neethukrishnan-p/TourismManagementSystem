@@ -44,3 +44,4 @@ class Passenger_filter(BaseModel):
                                      "status":"",
                                      "date_of_travel":""
                                  }}
+

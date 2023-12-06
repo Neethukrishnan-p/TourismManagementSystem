@@ -11,11 +11,12 @@ package = {
     "destination":["Munnar","Wagamon","Thekkady"],
     "description":"Experience the beauty and flavours of God's Own Country",
     "amount":5000,
-    "start_date":"2023-11-23",
-    "end_date":"2023-11-26",
-    "rating":0,
-    "availability":10
+    "start_date":"2023-12-06T12:10:31.924Z",
+    "end_date":"2023-12-06T12:10:31.924Z",
+    "availability":9
+
 }
+
 
 passenger = {
     "first_name":"Anjana",

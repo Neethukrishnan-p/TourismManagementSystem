@@ -3,18 +3,25 @@ from db_config import PASSENGER,PACKAGE
 from models.passenger_model import Passenger,Passenger_filter
 from bson import ObjectId
 from typing import Annotated
+import datetime
+
 
 passenger = APIRouter()
 
-@passenger.post('/add/',description="Creating and adding Passenger details")
+
+@passenger.post('/add/',description="Creating and adding Passenger details",status_code=status.HTTP_201_CREATED)
 async def create_passenger(passenger:Passenger):
     passenger.package_id = ObjectId(passenger.package_id)
     user = passenger.model_dump()
     user["rating"] = 0
     res = PACKAGE.find_one({"_id": passenger.package_id})
+    print(type(res["start_date"]))
     if res["availability"]:
-        PACKAGE.update_one({"_id": passenger.package_id}, {"$set": {"availability": res["availability"] - 1}})
-        PASSENGER.insert_one(user)
+        if passenger.date_of_travel.replace(tzinfo=None) > res["start_date"] and passenger.date_of_travel.replace(tzinfo=None) < res["end_date"]:
+            PACKAGE.update_one({"_id": passenger.package_id}, {"$set": {"availability": res["availability"] - 1}})
+            PASSENGER.insert_one(user)
+        else:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"Enter the travel date between {res['start_date']} and {res['end_date']}")
     else:
         return "The seats are full"
     return {"data":"passenger data has been created"}
@@ -43,7 +50,8 @@ async def passenger_enrolled(package_id:str):
 @passenger.post('/rating',description="Displaying the average rating and the total ratings")
 async def rate_package(id:str,value:float):
     res1 = PASSENGER.find_one({"_id":ObjectId(id)})
-    if (not res1["status"] == "prior") and res1["rating"] == 0:
+    current_time = datetime.datetime.now()
+    if (current_time > res1["date_of_travel"]) and res1["rating"] == 0:
         if value <= 5:
             PASSENGER.update_one({"_id":ObjectId(id)},{"$set":{"rating":value}})
 
@@ -57,7 +65,7 @@ async def rate_package(id:str,value:float):
         else:
             raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE,detail="Enter a value less than 5")
     else:
-        return "You can't rate the package"
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="You can't rate the package")
 
 @passenger.get('/bypackages',description="Displaying no.of passengers for each package")
 async def get_no_of_passenger():
@@ -70,8 +78,14 @@ async def get_no_of_passenger():
     return res
 
 
-@passenger.delete('/',description="Deleting passenger details")
+@passenger.delete('/',description="Deleting passenger details",status_code=status.HTTP_200_OK)
 async def delete_passenger(id:str):
-    PASSENGER.delete_one({"_id":ObjectId(id)})
+    passenger = PASSENGER.find_one({"_id":ObjectId(id)})
+    if passenger:
+        package = PACKAGE.find_one({"_id": passenger["package_id"]})
+        PACKAGE.update_one({"_id":passenger["package_id"]},{"$set":{"availability": package["availability"] + 1}})
+        PASSENGER.delete_one({"_id":ObjectId(id)})
+    else:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="There is no such passenger")
     return {"data":"data has been successfully deleted"}
 

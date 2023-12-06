@@ -40,3 +40,4 @@ class PackageFilter(BaseModel):
 class RatedPackage(Packages):
     rating:float=0
     total_rating:list[float]=[]
+

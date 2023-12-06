@@ -1,4 +1,4 @@
-from fastapi import APIRouter,Body
+from fastapi import APIRouter,Body,status
 from db_config import PACKAGE
 from bson import ObjectId
 from models.package_model import Packages,PackageFilter,RatedPackage
@@ -6,7 +6,7 @@ from typing import Annotated
 
 package = APIRouter()
 
-@package.post('/create/',description="Adding packages")
+@package.post('/create/',description="Adding packages",status_code=status.HTTP_201_CREATED)
 async def create_packages(package:Packages):
     package = RatedPackage(**package.model_dump())
     PACKAGE.insert_one(package.model_dump())
@@ -14,7 +14,7 @@ async def create_packages(package:Packages):
 
 @package.put('/',description="Updating the details")
 async def update_package_details(package_filter:PackageFilter,doc_id:str=Body(...)):
-    PACKAGE.update_one({"_id":ObjectId(doc_id)},{"$set":package_filter.model_dump(exclude_unset=True,exclude="_id")})
+    PACKAGE.update_one({"_id":ObjectId(doc_id)},{"$set":package_filter.model_dump(exclude_unset=True)})
     return {"data":"The data has been successfully updated"}
 
 @package.post('/show_package',description="Displaying all the packages")
@@ -62,7 +62,7 @@ async def get_amount(amount:float):
         res.append(document)
     return res
 
-@package.delete('/',description="Deleting packages")
+@package.delete('/',description="Deleting packages",status_code=status.HTTP_200_OK)
 async def delete_packages(id:str):
     PACKAGE.delete_one({"_id":ObjectId(id)})
     return {"data":"data has been successfully deleted"}
