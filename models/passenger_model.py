@@ -18,7 +18,7 @@ class Passenger(BaseModel):
         arbitrary_types_allowed = True
 
 class Passenger_filter(BaseModel):
-    _id:Optional[str] = None
+    id:Optional[str|ObjectId] = None
     first_name:Optional[str] = None
     last_name: Optional[str] = None
     age: Optional[int] = None

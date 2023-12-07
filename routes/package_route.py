@@ -1,18 +1,22 @@
-from fastapi import APIRouter,Body,status
+from fastapi import APIRouter,Body,status,HTTPException
 from db_config import PACKAGE
 from bson import ObjectId
 from models.package_model import Packages,PackageFilter,RatedPackage
 from typing import Annotated
 
+
 package = APIRouter()
 
 @package.post('/create/',description="Adding packages",status_code=status.HTTP_201_CREATED)
 async def create_packages(package:Packages):
+    packages = [doc for doc in PACKAGE.find({"name": package.name})]
+    if packages:
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE,detail=f"{package.name} already exists")
     package = RatedPackage(**package.model_dump())
     PACKAGE.insert_one(package.model_dump())
     return {"data":"package data has been created"}
 
-@package.put('/',description="Updating the details")
+@package.put('/update',description="Updating the details")
 async def update_package_details(package_filter:PackageFilter,doc_id:str=Body(...)):
     PACKAGE.update_one({"_id":ObjectId(doc_id)},{"$set":package_filter.model_dump(exclude_unset=True)})
     return {"data":"The data has been successfully updated"}
@@ -20,8 +24,15 @@ async def update_package_details(package_filter:PackageFilter,doc_id:str=Body(..
 @package.post('/show_package',description="Displaying all the packages")
 async def show_packages(package_filter:Annotated[PackageFilter,Body(),]):
     res = []
-    package_filter._id=ObjectId(package_filter._id)
-    for document in PACKAGE.find(package_filter.model_dump(exclude_unset=True)):
+    if package_filter.id:
+        package_filter.id=ObjectId(package_filter.id)
+    filter_dict=package_filter.model_dump(exclude_unset=True)
+    if "id" in filter_dict:
+        filter_dict["_id"]=filter_dict["id"]
+        del filter_dict["id"]
+    print(filter_dict)
+
+    for document in PACKAGE.find(filter_dict):
         document['_id'] = str(document['_id'])
         res.append(document)
     print(len(res))

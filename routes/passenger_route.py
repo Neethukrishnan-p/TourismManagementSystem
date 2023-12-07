@@ -29,8 +29,13 @@ async def create_passenger(passenger:Passenger):
 @passenger.post('/',description="Displaying all passenger details")
 async def show_passengers(passenger_filter:Annotated[Passenger_filter,Body()]):
     res = []
-    passenger_filter._id = ObjectId(passenger_filter._id)
-    for document in PASSENGER.find(passenger_filter.model_dump(exclude_unset=True)):
+    if passenger_filter.id:
+        passenger_filter.id = ObjectId(passenger_filter.id)
+    filter_dict = passenger_filter.model_dump(exclude_unset=True)
+    if "id" in filter_dict:
+        filter_dict["_id"] = filter_dict["id"]
+        del filter_dict["id"]
+    for document in PASSENGER.find(filter_dict):
         document['_id'] = str(document['_id'])
         document['package_id'] = str(document['package_id'])
         res.append(document)

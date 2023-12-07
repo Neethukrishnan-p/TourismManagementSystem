@@ -1,7 +1,7 @@
 import datetime
-from pydantic import BaseModel
+from pydantic import BaseModel,Field
 from typing import List,Optional
-
+from bson import ObjectId
 
 class Packages(BaseModel):
     name:str
@@ -13,7 +13,7 @@ class Packages(BaseModel):
     end_date:datetime.datetime
 
 class PackageFilter(BaseModel):
-    _id:Optional[str] = None
+    id:Optional[str|ObjectId] = None
     name: Optional[str]=None
     description: Optional[str]=None
     destination: Optional[List[str]]=None
@@ -22,6 +22,7 @@ class PackageFilter(BaseModel):
     start_date: Optional[datetime.datetime]=None
     end_date: Optional[datetime.datetime]=None
     class Config:
+        arbitrary_types_allowed=True
         json_schema_extra={"example":
                                {
                                    "_id":"",
