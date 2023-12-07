@@ -24,7 +24,9 @@ async def create_passenger(passenger:Passenger):
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"Enter the travel date between {res['start_date']} and {res['end_date']}")
     else:
         return "The seats are full"
-    return {"data":"passenger data has been created"}
+    user["_id"] = str(user["_id"])
+    user["package_id"] = str(user["package_id"])
+    return user
 
 @passenger.post('/',description="Displaying all passenger details")
 async def show_passengers(passenger_filter:Annotated[Passenger_filter,Body()]):

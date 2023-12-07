@@ -14,12 +14,20 @@ async def create_packages(package:Packages):
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE,detail=f"{package.name} already exists")
     package = RatedPackage(**package.model_dump())
     PACKAGE.insert_one(package.model_dump())
-    return {"data":"package data has been created"}
+    return package
 
 @package.put('/update',description="Updating the details")
 async def update_package_details(package_filter:PackageFilter,doc_id:str=Body(...)):
+    if package_filter.name:
+        packages =  PACKAGE.find_one({"name": package_filter.name})
+        if packages:
+            raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"{package_filter.name} already exists")
     PACKAGE.update_one({"_id":ObjectId(doc_id)},{"$set":package_filter.model_dump(exclude_unset=True)})
-    return {"data":"The data has been successfully updated"}
+    res = []
+    for document in PACKAGE.find({"_id":ObjectId(doc_id)}):
+        document["_id"] = str(document["_id"])
+        res.append(document)
+    return res
 
 @package.post('/show_package',description="Displaying all the packages")
 async def show_packages(package_filter:Annotated[PackageFilter,Body(),]):
