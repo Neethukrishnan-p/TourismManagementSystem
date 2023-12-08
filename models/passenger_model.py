@@ -33,7 +33,7 @@ class Passenger_filter(BaseModel):
         arbitrary_types_allowed=True
         json_schema_extra = {"example":
                                  {
-                                     "_id":"",
+                                     "id":"",
                                      "first_name":"",
                                      "last_name":"",
                                      "age":"",

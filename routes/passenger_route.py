@@ -37,6 +37,9 @@ async def show_passengers(passenger_filter:Annotated[Passenger_filter,Body()]):
     if "id" in filter_dict:
         filter_dict["_id"] = filter_dict["id"]
         del filter_dict["id"]
+    if "package_id" in filter_dict:
+        passenger_filter.package_id = ObjectId(passenger_filter.package_id)
+        filter_dict["package_id"] = passenger_filter.package_id
     for document in PASSENGER.find(filter_dict):
         document['_id'] = str(document['_id'])
         document['package_id'] = str(document['package_id'])
@@ -58,27 +61,28 @@ async def passenger_enrolled(package_id:str):
 async def rate_package(id:str,value:float):
     res1 = PASSENGER.find_one({"_id":ObjectId(id)})
     current_time = datetime.datetime.now()
-    if (current_time > res1["date_of_travel"]) and res1["rating"] == 0:
-        if value <= 5:
-            PASSENGER.update_one({"_id":ObjectId(id)},{"$set":{"rating":value}})
+    if (current_time < res1["date_of_travel"]) or res1["rating"]:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="You can't rate the package")
+    if value <= 5 and value >0:
+        PASSENGER.update_one({"_id":ObjectId(id)},{"$set":{"rating":value}})
 
-            res2 = PACKAGE.find_one({"_id":res1["package_id"]})
-            new_value = (sum(res2["total_rating"])+value)/(len(res2["total_rating"])+1)
+        res2 = PACKAGE.find_one({"_id":res1["package_id"]})
+        new_value = (sum(res2["total_rating"])+value)/(len(res2["total_rating"])+1)
 
-            PACKAGE.update_one({"_id":res1["package_id"]},{"$set":{"rating":new_value},"$push":{"total_rating":value}})
-            res = PACKAGE.find_one({"_id":res1["package_id"]})
-            res["_id"] = str(res["_id"])
-            return res
-        else:
-            raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE,detail="Enter a value less than 5")
+        PACKAGE.update_one({"_id":res1["package_id"]},{"$set":{"rating":new_value},"$push":{"total_rating":value}})
+        res = PACKAGE.find_one({"_id":res1["package_id"]})
+        res["_id"] = str(res["_id"])
+        return res
     else:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="You can't rate the package")
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="Enter a value less than 5")
+
 
 @passenger.get('/bypackages',description="Displaying no.of passengers for each package")
 async def get_no_of_passenger():
     res = []
     for document in PASSENGER.aggregate([{"$group":{"_id":"$package_id","no of passengers":{"$count":{}}}}]):
-        document["name"] = PACKAGE.find_one({"_id":document["_id"]})["name"]
+        package = PACKAGE.find_one({"_id":document["_id"]})
+        document["name"] = package["name"]
         document["_id"] = str(document["_id"])
         res.append(document)
         print(document)

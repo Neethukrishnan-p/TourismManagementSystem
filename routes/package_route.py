@@ -3,6 +3,7 @@ from db_config import PACKAGE
 from bson import ObjectId
 from models.package_model import Packages,PackageFilter,RatedPackage
 from typing import Annotated
+from datetime import datetime
 
 
 package = APIRouter()
@@ -57,7 +58,7 @@ async def get_package(id:str):
 async def get_available_seats(name:str):
     res = PACKAGE.find_one({"name": name})
     if res["availability"] > 0:
-        return {"available seats":res["availability"]}
+        return {"available seats are ":res["availability"]}
     else:
         return "The seats are full"
 
@@ -71,7 +72,8 @@ async def get_destinations(name:str):
 async def get_length(name:str):
     res = PACKAGE.find_one({"name":name})
     days = res["end_date"] - res["start_date"]
-    return str(days)
+    print(type(days))
+    return days//86400
 
 @package.get('/amount',description="Displaying the packages within the budget")
 async def get_amount(amount:float):
