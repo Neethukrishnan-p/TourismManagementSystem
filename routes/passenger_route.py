@@ -17,7 +17,7 @@ async def create_passenger(passenger:Passenger):
     res = PACKAGE.find_one({"_id": passenger.package_id})
     print(type(res["start_date"]))
     if res["availability"]:
-        if passenger.date_of_travel.replace(tzinfo=None) > res["start_date"] and passenger.date_of_travel.replace(tzinfo=None) < res["end_date"]:
+        if passenger.date_of_travel.replace(tzinfo=None) >= res["start_date"] and passenger.date_of_travel.replace(tzinfo=None) < res["end_date"]:
             PACKAGE.update_one({"_id": passenger.package_id}, {"$set": {"availability": res["availability"] - 1}})
             PASSENGER.insert_one(user)
         else:
@@ -28,7 +28,26 @@ async def create_passenger(passenger:Passenger):
     user["package_id"] = str(user["package_id"])
     return user
 
-@passenger.post('/',description="Displaying all passenger details")
+@passenger.put('/update/',description="Updating the passenger details")
+async def update_passenger_details(passenger_filter:Passenger_filter,doc_id:str=Body(...)):
+    passenger = PASSENGER.find_one({"_id": ObjectId(doc_id)})
+    if passenger:
+        res1 = PACKAGE.find_one({"_id": passenger["package_id"]})
+        PACKAGE.update_one({"_id": passenger["package_id"]},{"$set": {"availability": res1["availability"] + 1}})
+    if passenger_filter.package_id:
+        passenger_filter.package_id = ObjectId(passenger_filter.package_id)
+        res2 = PACKAGE.find_one({"_id":passenger_filter.package_id})
+        PACKAGE.update_one({"_id":passenger_filter.package_id},{"$set":{"availability":res2["availability"]-1}})
+    PASSENGER.update_one({"_id": ObjectId(doc_id)}, {"$set": passenger_filter.model_dump(exclude_unset=True)})
+    res = []
+    for document in PASSENGER.find({"_id":ObjectId(doc_id)}):
+        document["_id"] = str(document["_id"])
+        document["package_id"] = str(document["package_id"])
+        res.append(document)
+        return res
+
+
+@passenger.post('/',description="Displaying the passenger details")
 async def show_passengers(passenger_filter:Annotated[Passenger_filter,Body()]):
     res = []
     if passenger_filter.id:
@@ -47,7 +66,7 @@ async def show_passengers(passenger_filter:Annotated[Passenger_filter,Body()]):
     print(len(res))
     return res
 
-@passenger.get('/package')
+@passenger.get('/package',description="Displaying the passenger details using the package_id")
 async def passenger_enrolled(package_id:str):
     res = []
     for document in PASSENGER.find({"package_id":ObjectId(package_id)}):

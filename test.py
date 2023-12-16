@@ -11,7 +11,8 @@ packages = [{
     "end_date":datetime.datetime(2023,12,8,12,10,31),
     "availability":9,
     "rating":0,
-    "total_rating":4},
+    "total_rating":[]
+},
     {
     "name":"South India trip",
     "destination":["Kerala","Tamilnadu","Hyderabad","Karnataka"],
@@ -21,7 +22,7 @@ packages = [{
     "end_date":datetime.datetime(2023,12,15,12,10,31),
     "availability":8,
     "rating":0,
-    "total_rating":3,
+    "total_rating":[],
     },
 {
     "name":"All India trip",
@@ -32,12 +33,24 @@ packages = [{
     "end_date":datetime.datetime(2023,12,20,12,10,31),
     "availability":8,
     "rating":0,
-    "total_rating":4,
-}
+    "total_rating":[],
+},
+    {
+    "name":"Kashmir Trip",
+    "destination":["Sri nagar","Pahalgam","Sonamarg"],
+    "description":"Experience the beauty and flavours of India",
+    "amount":10000,
+    "start_date":datetime.datetime(2023,12,16,12,10,31),
+    "end_date":datetime.datetime(2023,12,25,12,10,31),
+    "availability":8,
+    "rating":0,
+    "total_rating":[],
+    }
 ]
 
 
 PACKAGE.insert_many(packages)
+
 
 
 passengers =[ {
@@ -47,10 +60,10 @@ passengers =[ {
     "phone_no":"9056467846",
     "email":"anjana@gmail.com",
     "place":"kochi",
-    "package_id":"123",
+    "package_id":"",
     "status":"completed",
     "date_of_travel":datetime.datetime(2023,12,6,12,10,31),
-    "rating":4,
+    "rating":0,
     "package_name":"Kerala Winter trip"
 },
     {
@@ -60,10 +73,10 @@ passengers =[ {
     "phone_no":"9056463467",
     "email":"ashish@gmail.com",
     "place":"Delhi",
-    "package_id":"123",
-    "status":"Travelling",
+    "package_id":"",
+    "status":"Completed",
     "date_of_travel":datetime.datetime(2023,12,7,12,10,31),
-    "rating":3,
+    "rating":0,
     "package_name":"South India trip"
     },
     {
@@ -73,11 +86,24 @@ passengers =[ {
     "phone_no":"9056432465",
     "email":"nashith@gmail.com",
     "place":"Thrissur",
-    "package_id":"123",
-    "status":"Prior",
+    "package_id":"",
+    "status":"Travelling",
     "date_of_travel":datetime.datetime(2023,12,10,12,10,31),
     "rating":0,
     "package_name":"All India trip"
+    },
+    {
+    "first_name":"Fiego",
+    "last_name":"KP",
+    "age":30,
+    "phone_no":"9056432465",
+    "email":"fiego@gmail.com",
+    "place":"Thrissur",
+    "package_id":"",
+    "status":"Prior",
+    "date_of_travel":datetime.datetime(2023,12,20,12,10,31),
+    "rating":0,
+    "package_name":"Kashmir Trip"
     }
 ]
 

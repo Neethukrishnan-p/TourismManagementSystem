@@ -17,7 +17,7 @@ async def create_packages(package:Packages):
     PACKAGE.insert_one(package.model_dump())
     return package
 
-@package.put('/update',description="Updating the details")
+@package.put('/update',description="Updating the package details")
 async def update_package_details(package_filter:PackageFilter,doc_id:str=Body(...)):
     if package_filter.name:
         packages =  PACKAGE.find_one({"name": package_filter.name})
@@ -30,7 +30,7 @@ async def update_package_details(package_filter:PackageFilter,doc_id:str=Body(..
         res.append(document)
     return res
 
-@package.post('/show_package',description="Displaying all the packages")
+@package.post('/show_package',description="Displaying  the packages")
 async def show_packages(package_filter:Annotated[PackageFilter,Body(),]):
     res = []
     if package_filter.id:
@@ -68,12 +68,12 @@ async def get_destinations(name:str):
     print(res["destination"])
     return res["destination"]
 
-@package.get('/length/',description="Diaplaying the length of the package")
+@package.get('/length/',description="Displaying the length of the package")
 async def get_length(name:str):
     res = PACKAGE.find_one({"name":name})
     days = res["end_date"] - res["start_date"]
     print(type(days))
-    return days//86400
+    return {"The length of the package are" : str(days)}
 
 @package.get('/amount',description="Displaying the packages within the budget")
 async def get_amount(amount:float):
