@@ -13,32 +13,29 @@ tags_metadata = [
         "description":"Doing several operations using **passenger**.",
     },
 ]
-description = '''
-    Holidays Tourism App is a tour management system for Holidays Tourism Company to keep track of all the tour packages and details of the customers.
-
-    Packages
-
-    You will be able to:
-
-    Create packages.
-    Read packages.
-    Update package details.
-    Delete packages.
-
-    Passenger
-
-    You will be able to:
-    
-    Add passengers to the packages.
-    Read passenger details.
-    Update passenger details.
-    Delete passengers.
-    '''
 
 app = FastAPI(
     title="Holidays Tourism App",
     openapi_tags=tags_metadata,
-    description=description,
+    description="""Holidays Tourism App is a tour management system for Holidays Tourism Company to keep track of all the tour packages and details of the customers.<br><br>
+    **Packages**<br>
+    <br>
+    You will be able to:<br>
+    <br>
+    * _Create packages_<br>
+    * _Read packages_<br>
+    * _Update package details_<br>
+    * _Delete packages_<br>
+    <br>
+    **Passenger**<br>
+    <br>
+    You will be able to:<br>
+    <br>
+    * _Add passengers to the packages_<br>
+    * _Read passenger details_<br>
+    * _Update passenger details_<br>
+    * _Delete passengers_<br>
+    """,
 )
 app.include_router(package,prefix='/packages',tags=["Package"])
 app.include_router(passenger,prefix='/passenger',tags=["Passenger"])

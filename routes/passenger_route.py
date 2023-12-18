@@ -48,7 +48,7 @@ async def update_passenger_details(passenger_filter:Passenger_filter,doc_id:str=
 
 
 @passenger.post('/',description="Displaying the passenger details")
-async def show_passengers(passenger_filter:Annotated[Passenger_filter,Body()]):
+async def show_passengers(passenger_filter:Passenger_filter):
     res = []
     if passenger_filter.id:
         passenger_filter.id = ObjectId(passenger_filter.id)

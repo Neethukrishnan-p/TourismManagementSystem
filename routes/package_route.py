@@ -31,7 +31,7 @@ async def update_package_details(package_filter:PackageFilter,doc_id:str=Body(..
     return res
 
 @package.post('/show_package',description="Displaying  the packages")
-async def show_packages(package_filter:Annotated[PackageFilter,Body(),]):
+async def show_packages(package_filter:PackageFilter):
     res = []
     if package_filter.id:
         package_filter.id=ObjectId(package_filter.id)
