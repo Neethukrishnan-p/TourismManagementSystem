@@ -18,7 +18,7 @@ app = FastAPI(
     title="Holidays Tourism App",
     openapi_tags=tags_metadata,
     description="""Holidays Tourism App is a tour management system for Holidays Tourism Company to keep track of all the tour packages and details of the customers.<br><br>
-    **Packages**<br>
+    **Package**<br>
     <br>
     You will be able to:<br>
     <br>

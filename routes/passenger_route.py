@@ -2,7 +2,6 @@ from fastapi import APIRouter,HTTPException,status,Body
 from db_config import PASSENGER,PACKAGE
 from models.passenger_model import Passenger,Passenger_filter
 from bson import ObjectId
-from typing import Annotated
 import datetime
 
 
@@ -63,7 +62,8 @@ async def show_passengers(passenger_filter:Passenger_filter):
         document['_id'] = str(document['_id'])
         document['package_id'] = str(document['package_id'])
         res.append(document)
-    print(len(res))
+    if not res:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="There is no passengers")
     return res
 
 @passenger.get('/package',description="Displaying the passenger details using the package_id")
@@ -74,6 +74,8 @@ async def passenger_enrolled(package_id:str):
         document['_id'] = str(document['_id'])
         res.append(document)
     print(len(res))
+    if not res:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"There is no passenger with the package_id {package_id}")
     return res
 
 @passenger.post('/rating',description="Displaying the average rating and the total ratings")

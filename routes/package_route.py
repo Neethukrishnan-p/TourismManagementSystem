@@ -1,9 +1,7 @@
 from fastapi import APIRouter,Body,status,HTTPException
-from db_config import PACKAGE
+from db_config import PACKAGE,PASSENGER
 from bson import ObjectId
 from models.package_model import Packages,PackageFilter,RatedPackage
-from typing import Annotated
-from datetime import datetime
 
 
 package = APIRouter()
@@ -49,14 +47,18 @@ async def show_packages(package_filter:PackageFilter):
 
 @package.get('/',description="Displaying the package by using id")
 async def get_package(id:str):
-        res = PACKAGE.find_one({"_id":ObjectId(id)})
-        res["_id"] = str(res["_id"])
-        print(res)
-        return res
+    res = PACKAGE.find_one({"_id":ObjectId(id)})
+    if not res:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"There is no package with package id {id} ")
+    res["_id"] = str(res["_id"])
+    print(res)
+    return res
 
 @package.get('/check_availability/',description="Displaying the availability of seats")
 async def get_available_seats(name:str):
     res = PACKAGE.find_one({"name": name})
+    if not res:
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE,detail="There is no such package")
     if res["availability"] > 0:
         return {"available seats are ":res["availability"]}
     else:
@@ -65,14 +67,17 @@ async def get_available_seats(name:str):
 @package.get('/check_destinations/',description="Displaying the destinations in the package")
 async def get_destinations(name:str):
     res = PACKAGE.find_one({"name":name})
+    if not res:
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE,detail="There is no such package")
     print(res["destination"])
     return res["destination"]
 
 @package.get('/length/',description="Displaying the length of the package")
 async def get_length(name:str):
     res = PACKAGE.find_one({"name":name})
+    if not res:
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE,detail="There is no such package")
     days = res["end_date"] - res["start_date"]
-    print(type(days))
     return {"The length of the package are" : str(days)}
 
 @package.get('/amount',description="Displaying the packages within the budget")
@@ -85,6 +90,10 @@ async def get_amount(amount:float):
 
 @package.delete('/',description="Deleting packages",status_code=status.HTTP_200_OK)
 async def delete_packages(id:str):
-    PACKAGE.delete_one({"_id":ObjectId(id)})
+    res = PACKAGE.find_one_and_delete({"_id":ObjectId(id)})
+    if res:
+        PASSENGER.delete_many({"package_id":ObjectId(id)})
+    if not res:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"There is no such package with package id {id}")
     return {"data":"data has been successfully deleted"}
 
